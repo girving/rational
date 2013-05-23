@@ -1,7 +1,9 @@
 all: rational.so
 
+PYTHON = python
+
 rational.so: rational.c
-	python setup.py build
+	$(PYTHON) setup.py build
 	cp build/lib.*/rational.so .
 
 .PHONY: clean test

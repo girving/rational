@@ -1,6 +1,6 @@
 /* Fixed size rational numbers exposed to Python */
 
-#define NPY_NO_DEPRECATED_API
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
 #include <stdint.h>
 #include <math.h>
@@ -12,7 +12,7 @@
 /* Relevant arithmetic exceptions */
 
 /* Uncomment the following line to work around a bug in numpy */
-/* #define ACQUIRE_GIL */
+#define ACQUIRE_GIL
 
 static void
 set_overflow(void) {
@@ -118,7 +118,7 @@ typedef struct {
 
 static NPY_INLINE rational
 make_rational_int(int64_t n) {
-    rational r = {n,0};
+    rational r = {(int32_t)n,0};
     if (r.n != n) {
         set_overflow();
     }
@@ -135,8 +135,8 @@ make_rational_slow(int64_t n_, int64_t d_) {
         int64_t g = gcd(n_,d_);
         n_ /= g;
         d_ /= g;
-        r.n = n_;
-        int32_t d = d_;
+        r.n = (int32_t)n_;
+        int32_t d = (int32_t)d_;
         if (r.n!=n_ || d!=d_) {
             set_overflow();
         }
@@ -163,8 +163,8 @@ make_rational_fast(int64_t n_, int64_t d_) {
     n_ /= g;
     d_ /= g;
     rational r;
-    r.n = n_;
-    r.dmm = d_-1;
+    r.n = (int32_t)n_;
+    r.dmm = (int32_t)(d_-1);
     if (r.n!=n_ || r.dmm+1!=d_) {
         set_overflow();
     }
@@ -691,7 +691,7 @@ byteswap(int32_t* x) {
     char* p = (char*)x;
     size_t i;
     for (i = 0; i < sizeof(*x)/2; i++) {
-        int j = sizeof(*x)-1-i;
+        int j = (int)(sizeof(*x)-1-i);
         char t = p[i];
         p[i] = p[j];
         p[j] = t;
